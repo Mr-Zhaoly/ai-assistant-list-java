@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-vector-store-milvus</artifactId>
+            <artifactId>spring-ai-milvus-store</artifactId>
         </dependency>
         <!--基于redis 记忆存储-->
         <dependency>
