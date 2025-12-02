@@ -18,12 +18,12 @@ public class MilvusClientAutoConfiguration {
     @Value("${milvus.client.password}")
     private String password;
 
-    @Bean(name = "milvusClient")
-    public MilvusClientV2 milvusClient() {
+    @Bean(name = "milvusClientV2")
+    public MilvusClientV2 milvusClientV2() {
         ConnectConfig config = ConnectConfig.builder()
                 .uri(url)
                 .token(String.format("%s:%s", userName, password))
-                .dbName("ai_health_assistant")
+                .dbName("database_assistant")
                 .build();
         return new MilvusClientV2(config);
     }

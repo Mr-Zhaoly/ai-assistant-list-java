@@ -3,6 +3,16 @@ server:
 spring:
   profiles:
     active: dev
+  redis:
+    host: ${redis.host}
+    database: 14
+    port: ${redis.port}
+    password: ${redis.password}
+    maxTotal: 100
+    maxIdle: 50
+    maxWait: 2500
+    testOnBorrow: true
+    testOnReturn: true
   ai:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY}
@@ -14,8 +24,8 @@ spring:
           model: deepseek-v3
     memory:
       redis:
-        host: localhost
-        port: 6379
+        host: ${redis.host}
+        port: ${redis.port}
         timeout: 5000
         password:
     mcp:
@@ -40,6 +50,12 @@ milvus:
     url: "http://localhost:19530"
     userName: "root"
     password: "milvus"
+
+# redis-config.yml
+redis:
+  host: localhost
+  password:
+  port: 6379
 
 logging:
   level:
