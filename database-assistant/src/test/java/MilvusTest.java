@@ -21,7 +21,7 @@ public class MilvusTest {
     @Autowired
     private IdGeneratorSnowflake idGeneratorSnowflake;
     @Test
-    public void testMilnvs() {
+    public void testMilvus() {
         List<Document> documents = List.of(
                 Document.builder()
                         .id(idGeneratorSnowflake.nextId())
