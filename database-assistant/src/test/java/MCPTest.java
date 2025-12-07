@@ -26,11 +26,11 @@ public class MCPTest {
         String question = "返回gerpgo_shop的表结构";
         ChatClient chatClient = ChatClient.builder(dashScopeChatModel)
                 //日志拦截
-                .defaultAdvisors(new SimpleLoggerAdvisor())
+//                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .defaultToolCallbacks(toolCallbackProvider)
                 .build();
         String answer = chatClient.prompt()
-                .user(u -> u.text(question))
+                .user(question)
                 .call()
                 .content();
         System.out.println(answer);

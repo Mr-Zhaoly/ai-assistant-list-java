@@ -1,6 +1,6 @@
 package com.zly.config;
 
-import com.alibaba.cloud.ai.memory.redis.RedisChatMemoryRepository;
+import com.alibaba.cloud.ai.memory.redis.RedissonRedisChatMemoryRepository;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,8 +31,8 @@ public class ChatMemoryAutoConfiguration {
     private int redisTimeout;
 
     @Bean
-    public RedisChatMemoryRepository redisChatMemoryRepository() {
-        return RedisChatMemoryRepository.builder()
+    public RedissonRedisChatMemoryRepository redisChatMemoryRepository() {
+        return RedissonRedisChatMemoryRepository.builder()
                 .host(redisHost)
                 .port(redisPort)
                 // 若没有设置密码则注释该项
@@ -42,7 +42,7 @@ public class ChatMemoryAutoConfiguration {
     }
 
     @Bean
-    ChatMemory chatMemory(RedisChatMemoryRepository chatMemoryRepository) {
+    ChatMemory chatMemory(RedissonRedisChatMemoryRepository chatMemoryRepository) {
         return MessageWindowChatMemory
                 .builder()
                 .maxMessages(10)

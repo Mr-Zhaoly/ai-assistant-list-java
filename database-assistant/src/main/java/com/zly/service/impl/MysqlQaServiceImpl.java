@@ -6,17 +6,22 @@ import com.zly.service.IMysqlQaService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.milvus.MilvusSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 @Service
 @Slf4j
@@ -26,7 +31,7 @@ public class MysqlQaServiceImpl implements IMysqlQaService {
     private DashScopeChatModel dashScopeChatModel;
 
     @Autowired
-    private ChatMemory chatMemory;
+    private MessageWindowChatMemory messageWindowChatMemory;
 
     @Autowired
     private SyncMcpToolCallbackProvider toolCallbackProvider;
@@ -40,7 +45,7 @@ public class MysqlQaServiceImpl implements IMysqlQaService {
         chatClient = ChatClient
                 .builder(dashScopeChatModel)
                 .defaultAdvisors(
-                        PromptChatMemoryAdvisor.builder(chatMemory).build()
+                        MessageChatMemoryAdvisor.builder(messageWindowChatMemory).build()
                 )
                 .defaultToolCallbacks(toolCallbackProvider)
                 .build();
@@ -50,7 +55,7 @@ public class MysqlQaServiceImpl implements IMysqlQaService {
     public String getAnswer(QuestionRequestDTO requestDTO) {
         log.info("用户提问：{}", requestDTO.getQuestion());
 
-        List<Document> results = mysqlVectorStore.similaritySearch(SearchRequest.builder().query(requestDTO.getQuestion()).topK(3).build());
+        List<Document> results = mysqlVectorStore.similaritySearch(MilvusSearchRequest.milvusBuilder().query(requestDTO.getQuestion()).topK(1).build());
         // Step 2: 构建上下文
         String context = results.stream()
                 .map(Document::getText)
@@ -59,7 +64,7 @@ public class MysqlQaServiceImpl implements IMysqlQaService {
         String answer = chatClient.prompt()
                 .user(u -> u.text(requestDTO.getQuestion()))
                 //根据用户ID保存会话
-                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID,requestDTO.getUserId()))
+                .advisors(a -> a.param(CONVERSATION_ID, requestDTO.getUserId()))
                 .system(s -> s.text("#检索到的表结构：/n" + context))
                 .call()
                 .content();
