@@ -57,13 +57,13 @@ public class AgentTest {
 
     @Test
     public void testRunnableConfig() throws GraphRunnerException {
-        String threadId = "thread_123";
+        String threadId = "3";
         RunnableConfig runnableConfig = RunnableConfig.builder()
                 .threadId(threadId)
-                .addMetadata("key", "value")
+                .addMetadata("userId", "1")
                 .build();
 
-        AssistantMessage response = reactAgent.call("读取D:\\code\\ai-assistant-list-java\\database-agent\\src\\test\\java\\AgentTest.java", runnableConfig);
+        AssistantMessage response = reactAgent.call("你好", runnableConfig);
         System.out.println(response.getText());
     }
 }

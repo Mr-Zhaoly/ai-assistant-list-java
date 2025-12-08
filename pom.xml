@@ -35,7 +35,8 @@
         <project.version>0.0.1-SNAPSHOT</project.version>
         <fastjson.version>1.2.83</fastjson.version>
         <fastjson2.version>2.0.45</fastjson2.version>
-        <hutool.version>5.3.5</hutool.version>
+        <hutool.version>5.8.40</hutool.version>
+        <redission.version>3.22.0</redission.version>
 
         <!-- maven plugin -->
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
