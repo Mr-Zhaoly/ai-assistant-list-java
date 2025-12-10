@@ -63,7 +63,7 @@ public class AgentTest {
                 .addMetadata("userId", "1")
                 .build();
 
-        AssistantMessage response = reactAgent.call("你好", runnableConfig);
+        AssistantMessage response = reactAgent.call("帮我查询最近一个月的订单数据，不需要你去查询，直接给出SQL", runnableConfig);
         System.out.println(response.getText());
     }
 }
