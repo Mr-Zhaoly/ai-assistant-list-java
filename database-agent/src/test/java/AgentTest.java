@@ -57,7 +57,7 @@ public class AgentTest {
 
     @Test
     public void testRunnableConfig() throws GraphRunnerException {
-        String threadId = "3";
+        String threadId = "2";
         RunnableConfig runnableConfig = RunnableConfig.builder()
                 .threadId(threadId)
                 .addMetadata("userId", "1")
