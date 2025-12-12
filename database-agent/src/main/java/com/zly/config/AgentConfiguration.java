@@ -46,7 +46,7 @@ public class AgentConfiguration {
                 .model(chatModel)
                 .outputType(PoemOutput.class)
 //                .systemPrompt("你是一个数据库管理助手，请依据查询出来的表结构来回答问题")
-                .saver(new MemorySaver())
+                .saver(redisSaver)
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
                         .approvalOn("file_write", "Write File should be approved")

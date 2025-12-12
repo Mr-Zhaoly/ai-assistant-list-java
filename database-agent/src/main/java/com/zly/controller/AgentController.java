@@ -3,6 +3,9 @@ package com.zly.controller;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.action.InterruptionMetadata;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
+import com.zly.common.vo.base.ResultT;
+import com.zly.model.dto.QuestionRequestDTO;
+import com.zly.service.IDatabaseQaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +15,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
+@RequestMapping("/mysql")
 public class AgentController {
 
     @Autowired
     private ReactAgent reactAgent;
 
     private final Map<String, InterruptionMetadata> map = new ConcurrentHashMap<>();
+
+    @Autowired
+    private IDatabaseQaService databaseQaService;
+
+    @PostMapping("/ask")
+    public ResultT<String> askQuestion(@RequestBody QuestionRequestDTO request) {
+        String answer = databaseQaService.getAnswer(request);
+        return ResultT.success(answer);
+    }
 
     @GetMapping("/invoke")
     @ResponseBody

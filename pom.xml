@@ -37,6 +37,7 @@
         <fastjson2.version>2.0.45</fastjson2.version>
         <hutool.version>5.8.40</hutool.version>
         <redission.version>3.22.0</redission.version>
+        <mysql.version>8.0.33</mysql.version>
 
         <!-- maven plugin -->
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
