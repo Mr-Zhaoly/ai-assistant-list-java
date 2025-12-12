@@ -10,6 +10,9 @@ import com.zly.hook.LoggingHook;
 import com.zly.interceptor.LogToolInterceptor;
 import com.zly.tools.FileReadTool;
 import com.zly.tools.FileWriteTool;
+import com.zly.tools.SqlExecuteTool;
+import com.zly.tools.TableSearchTool;
+import com.zly.tools.TableStructureTool;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
@@ -32,6 +35,15 @@ public class AgentConfiguration {
     @Autowired
     private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
 
+    @Autowired
+    private TableSearchTool tableSearchTool;
+
+    @Autowired
+    private TableStructureTool tableStructureTool;
+
+    @Autowired
+    private SqlExecuteTool sqlExecuteTool;
+
     @Bean
     public ReactAgent reactAgent() throws GraphStateException {
         // 组合 MCP 工具与本地文件工具
@@ -39,17 +51,56 @@ public class AgentConfiguration {
         Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
         toolCallbacks.add(new FileReadTool().toolCallback());
         toolCallbacks.add(new FileWriteTool().toolCallback());
+        
+        // 注册数据库查询工具
+        toolCallbacks.add(tableSearchTool.toolCallback());
+        toolCallbacks.add(tableStructureTool.toolCallback());
+        toolCallbacks.add(sqlExecuteTool.toolCallback());
+
+        // 系统提示词：指导Agent按步骤执行数据库查询
+        String systemPrompt = """
+                你是一个专业的数据库查询助手，请严格按照以下步骤帮助用户查询数据库：
+                
+                步骤1：从用户输入中提取与数据库表名相关的关键字
+                - 分析用户的问题，识别出可能涉及的表名关键字（如"订单"、"用户"、"产品"等）
+                - 使用 table_search 工具，传入提取的关键字搜索匹配的表名
+                
+                步骤2：向用户展示找到的表名列表，等待用户确认
+                - 将搜索到的表名列表清晰地展示给用户
+                - 如果找到多个表，请列出所有选项供用户选择
+                - 如果未找到表，请提示用户使用其他关键字
+                
+                步骤3：用户确认表名后，获取表结构
+                - 等待用户明确确认要查询的表名
+                - 使用 table_structure 工具获取该表的完整结构信息
+                - 将表结构信息（字段名、类型、约束等）展示给用户
+                
+                步骤4：根据表结构和用户问题，生成SQL或执行查询
+                - 基于获取的表结构信息，理解用户的问题
+                - 生成相应的SQL查询语句（只能使用SELECT语句）
+                - 使用 sql_execute 工具执行SQL并返回结果
+                - 将查询结果以清晰、易读的方式展示给用户
+                
+                重要规则：
+                - 必须按顺序执行以上步骤，不能跳过任何步骤
+                - 在获取表结构前，必须等待用户明确确认表名
+                - 只能执行SELECT查询语句，不允许执行INSERT、UPDATE、DELETE等修改操作
+                - 如果用户的问题不明确，请主动询问以获取更多信息
+                - 始终以友好、专业的方式与用户交流
+                """;
 
         return ReactAgent.builder()
                 .name("database-agent")
-                .description("对接数据库的agent")
+                .description("对接数据库的agent，按照步骤帮助用户查询数据库")
                 .model(chatModel)
                 .outputType(PoemOutput.class)
-//                .systemPrompt("你是一个数据库管理助手，请依据查询出来的表结构来回答问题")
+                .systemPrompt(systemPrompt)
                 .saver(redisSaver)
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
-                        .approvalOn("file_write", "Write File should be approved")
+                        .approvalOn("file_write", "文件写入操作需要用户确认")
+                        .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
+                        .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
                         .build(), new LoggingHook())
                 .interceptors(new LogToolInterceptor())
                 .build();
