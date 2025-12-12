@@ -40,7 +40,7 @@ public class TableSearchTool implements Tool<TableSearchTool.Request, String> {
         log.info("搜索表名，关键字: {}", request.keyword);
         
         try {
-            List<String> tables = databaseService.searchTables(request.keyword);
+            List<DatabaseService.TableInfo> tables = databaseService.searchTables(request.keyword);
             
             if (tables.isEmpty()) {
                 return String.format("未找到包含关键字 '%s' 的表。请尝试使用其他关键字搜索。", request.keyword);
@@ -49,7 +49,12 @@ public class TableSearchTool implements Tool<TableSearchTool.Request, String> {
             StringBuilder result = new StringBuilder();
             result.append(String.format("找到 %d 个匹配的表（关键字: %s）:\n\n", tables.size(), request.keyword));
             for (int i = 0; i < tables.size(); i++) {
-                result.append(String.format("%d. %s\n", i + 1, tables.get(i)));
+                DatabaseService.TableInfo table = tables.get(i);
+                result.append(String.format("%d. %s", i + 1, table.getTableName()));
+                if (table.getTableComment() != null && !table.getTableComment().isEmpty()) {
+                    result.append(String.format(" (%s)", table.getTableComment()));
+                }
+                result.append("\n");
             }
             result.append("\n请确认要查询的表名，我将为您获取该表的详细结构。");
             

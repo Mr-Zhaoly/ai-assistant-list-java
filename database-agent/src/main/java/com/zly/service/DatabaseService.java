@@ -45,24 +45,61 @@ public class DatabaseService {
     }
 
     /**
-     * 根据关键字搜索表名
-     *
-     * @param keyword 搜索关键字
-     * @return 匹配的表名列表
+     * 表信息类，包含表名和注释
      */
-    public List<String> searchTables(String keyword) {
-        List<String> tables = new ArrayList<>();
+    public static class TableInfo {
+        private final String tableName;
+        private final String tableComment;
+
+        public TableInfo(String tableName, String tableComment) {
+            this.tableName = tableName;
+            this.tableComment = tableComment != null ? tableComment : "";
+        }
+
+        public String getTableName() {
+            return tableName;
+        }
+
+        public String getTableComment() {
+            return tableComment;
+        }
+    }
+
+    /**
+     * 根据关键字搜索表名
+     * 支持通过表名和表注释（中文描述）进行搜索
+     *
+     * @param keyword 搜索关键字（可以是表名或中文描述）
+     * @return 匹配的表信息列表（包含表名和注释）
+     */
+    public List<TableInfo> searchTables(String keyword) {
+        List<TableInfo> tables = new ArrayList<>();
         String database = getDatabaseName();
         
         try (Connection conn = dataSource.getConnection()) {
-            String sql = "SELECT TABLE_NAME FROM information_schema.TABLES " +
-                    "WHERE TABLE_SCHEMA = ? AND TABLE_NAME LIKE ?";
+            // 同时搜索表名和表注释，支持用户使用中文描述搜索英文表名
+            String sql = "SELECT DISTINCT TABLE_NAME, TABLE_COMMENT " +
+                    "FROM information_schema.TABLES " +
+                    "WHERE TABLE_SCHEMA = ? " +
+                    "AND (TABLE_NAME LIKE ? OR TABLE_COMMENT LIKE ?) " +
+                    "ORDER BY TABLE_NAME";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                String searchPattern = "%" + keyword + "%";
                 stmt.setString(1, database);
-                stmt.setString(2, "%" + keyword + "%");
+                stmt.setString(2, searchPattern);
+                stmt.setString(3, searchPattern);
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        tables.add(rs.getString("TABLE_NAME"));
+                        String tableName = rs.getString("TABLE_NAME");
+                        String tableComment = rs.getString("TABLE_COMMENT");
+                        
+                        // 避免重复添加
+                        boolean exists = tables.stream()
+                                .anyMatch(t -> t.getTableName().equals(tableName));
+                        if (!exists) {
+                            tables.add(new TableInfo(tableName, tableComment));
+                            log.debug("找到匹配表: {} (注释: {})", tableName, tableComment);
+                        }
                     }
                 }
             }
