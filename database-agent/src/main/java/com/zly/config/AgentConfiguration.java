@@ -2,10 +2,12 @@ package com.zly.config;
 
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
 import com.alibaba.cloud.ai.graph.agent.hook.hip.HumanInTheLoopHook;
+import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.RedisSaver;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import com.zly.common.ai.base.PoemOutput;
 import com.zly.hook.LoggingHook;
+import com.zly.interceptor.LogModelInterceptor;
 import com.zly.interceptor.LogToolInterceptor;
 import com.zly.tools.SqlExecuteTool;
 import com.zly.tools.TableSearchTool;
@@ -45,7 +47,7 @@ public class AgentConfiguration {
     public ReactAgent reactAgent() throws GraphStateException {
         // 组合 MCP 工具与本地文件工具
         List<ToolCallback> toolCallbacks = new ArrayList<>();
-        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
+//        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
         
         // 注册数据库查询工具
         toolCallbacks.add(tableSearchTool.toolCallback());
@@ -90,13 +92,13 @@ public class AgentConfiguration {
                 .model(chatModel)
                 .outputType(PoemOutput.class)
                 .systemPrompt(systemPrompt)
-                .saver(redisSaver)
+                .saver(new MemorySaver())
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
                         .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
                         .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
                         .build(), new LoggingHook())
-                .interceptors(new LogToolInterceptor())
+                .interceptors(new LogToolInterceptor(), new LogModelInterceptor())
                 .build();
     }
 

@@ -38,8 +38,7 @@ public class SqlExecuteTool implements Tool<SqlExecuteTool.Request, String> {
         log.info("执行SQL查询: {}", request.sql);
         
         try {
-            String result = databaseService.executeQuery(request.sql);
-            return result;
+            return databaseService.executeQuery(request.sql);
         } catch (IllegalArgumentException e) {
             log.warn("SQL安全检查失败: {}", e.getMessage());
             return "错误: " + e.getMessage();
