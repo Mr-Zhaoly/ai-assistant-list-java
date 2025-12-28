@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class PromptTest {
 
     @Test
-    public void test1(@Autowired VectorStore vectorStore, @Autowired DashScopeChatModel dashScopeChatModel) {
+    public void test1(@Autowired DashScopeChatModel dashScopeChatModel) {
         String question = "查询一个月的订单，并给出SQL？";
 //        // Step 1: 检索相关文档
 //        List<Document> relevantDocs = vectorStore.similaritySearch(question);
