@@ -1,6 +1,6 @@
 package com.zly.config;
 
-import com.alibaba.cloud.ai.graph.checkpoint.savers.RedisSaver;
+import com.alibaba.cloud.ai.graph.checkpoint.savers.redis.RedisSaver;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -26,6 +26,6 @@ public class RedisSaverConfiguration {
 
     @Bean
     public RedisSaver redisSaver(RedissonClient redissonClient){
-        return new RedisSaver(redissonClient);
+        return RedisSaver.builder().redisson(redissonClient).build();
     }
 }

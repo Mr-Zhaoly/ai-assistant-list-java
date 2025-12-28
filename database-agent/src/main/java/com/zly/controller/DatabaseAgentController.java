@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @RequestMapping("/mysql")
-public class AgentController {
+public class DatabaseAgentController {
 
     @Autowired
     private ReactAgent reactAgent;
