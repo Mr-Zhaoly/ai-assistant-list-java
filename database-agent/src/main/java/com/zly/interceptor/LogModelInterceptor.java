@@ -1,5 +1,7 @@
 package com.zly.interceptor;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.cloud.ai.graph.agent.interceptor.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,7 @@ public class LogModelInterceptor extends ModelInterceptor {
         // 执行实际调用
         ModelResponse response = handler.call(request);
 
-        log.info("ModelInterceptor: Model {} returned response: {}", request.getOptions().getModel(), response);
+        log.info("ModelInterceptor: Model {} returned response: {}", request.getOptions().getModel(), JSONUtil.toJsonStr(response));
         return response;
     }
 

@@ -90,7 +90,7 @@ public class AgentConfiguration {
                 .name("database-agent")
                 .description("对接数据库的agent，按照步骤帮助用户查询数据库")
                 .model(chatModel)
-                .outputType(PoemOutput.class)
+//                .outputType(PoemOutput.class)
                 .systemPrompt(systemPrompt)
                 .saver(new MemorySaver())
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
