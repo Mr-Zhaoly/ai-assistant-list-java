@@ -92,7 +92,7 @@ public class AgentConfiguration {
                 .model(chatModel)
 //                .outputType(PoemOutput.class)
                 .systemPrompt(systemPrompt)
-                .saver(new MemorySaver())
+                .saver(redisSaver)
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
                         .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")

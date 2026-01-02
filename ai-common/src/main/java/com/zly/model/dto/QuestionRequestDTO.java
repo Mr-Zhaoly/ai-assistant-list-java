@@ -22,4 +22,7 @@ public class QuestionRequestDTO implements Serializable {
 
     @NotNull(message = "用户ID不能为空")
     private String userId;
+
+    @NotNull(message = "会话ID不能为空")
+    private String sessionId;
 }
