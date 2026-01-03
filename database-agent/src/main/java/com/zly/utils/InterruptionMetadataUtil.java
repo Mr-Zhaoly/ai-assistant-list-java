@@ -20,7 +20,7 @@ public class InterruptionMetadataUtil {
                     .id(toolFeedback.getId())
                     .name(toolFeedback.getName())
                     .arguments(toolFeedback.getArguments())
-                    .result(toolFeedback.getResult().name())
+                    .result(toolFeedback.getResult() == null ? null : toolFeedback.getResult().name())
                     .description(toolFeedback.getDescription())
                     .build();
 
