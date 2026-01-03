@@ -12,7 +12,6 @@
     <modules>
 <!--        <module>ai-test</module>-->
 <!--        <module>milvus-manage</module>-->
-<!--        <module>database-assistant</module>-->
         <module>ai-common</module>
         <module>common-tools</module>
         <module>database-agent</module>
