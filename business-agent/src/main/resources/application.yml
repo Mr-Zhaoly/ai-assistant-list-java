@@ -1,0 +1,35 @@
+server:
+  port: 8083
+spring:
+  profiles:
+    active: dev
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-v3
+      chat:
+        options:
+          model: deepseek-v3
+    memory:
+      redis:
+        host: ${redis.host}
+        port: ${redis.port}
+        timeout: 5000
+        password:
+            
+# redis-config.yml
+redis:
+  host: localhost
+  password:
+  port: 6379
+
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG

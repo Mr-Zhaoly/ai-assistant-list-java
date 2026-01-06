@@ -6,13 +6,11 @@ import com.alibaba.cloud.ai.graph.checkpoint.savers.redis.RedisSaver;
 import com.alibaba.cloud.ai.graph.exception.GraphStateException;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -23,13 +21,9 @@ public class AgentConfiguration {
     @Autowired
     private RedisSaver redisSaver;
 
-    @Autowired
-    private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
-
     @Bean
     public ReactAgent reactAgent() throws GraphStateException {
         List<ToolCallback> toolCallbacks = new ArrayList<>();
-        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
 
         String systemPrompt = """
                 你是一个专业的业务助手，负责处理通用的业务请求。
