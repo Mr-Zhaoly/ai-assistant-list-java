@@ -47,12 +47,12 @@ public class AgentConfiguration {
     public ReactAgent reactAgent() throws GraphStateException {
         // 组合 MCP 工具与本地文件工具
         List<ToolCallback> toolCallbacks = new ArrayList<>();
-//        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
+        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
         
         // 注册数据库查询工具
-        toolCallbacks.add(tableSearchTool.toolCallback());
-        toolCallbacks.add(tableStructureTool.toolCallback());
-        toolCallbacks.add(sqlExecuteTool.toolCallback());
+//        toolCallbacks.add(tableSearchTool.toolCallback());
+//        toolCallbacks.add(tableStructureTool.toolCallback());
+//        toolCallbacks.add(sqlExecuteTool.toolCallback());
 
         // 系统提示词：指导Agent按步骤执行数据库查询
         String systemPrompt = """
@@ -60,7 +60,7 @@ public class AgentConfiguration {
                 
                 步骤1：从用户输入中提取与数据库表名相关的关键字
                 - 分析用户的问题，识别出可能涉及的表名关键字（如"订单"、"用户"、"产品"等）
-                - 使用 table_search 工具，传入提取的关键字搜索匹配的表名
+                - 使用 list_tables 工具，传入提取的关键字搜索匹配的表名
                 
                 步骤2：向用户展示找到的表名列表，等待用户确认
                 - 将搜索到的表名列表清晰地展示给用户
@@ -69,13 +69,13 @@ public class AgentConfiguration {
                 
                 步骤3：用户确认表名后，获取表结构
                 - 等待用户明确确认要查询的表名
-                - 使用 table_structure 工具获取该表的完整结构信息
+                - 使用 describe_table 工具获取该表的完整结构信息
                 - 将表结构信息（字段名、类型、约束等）展示给用户
                 
                 步骤4：根据表结构和用户问题，生成SQL或执行查询
                 - 基于获取的表结构信息，理解用户的问题
                 - 生成相应的SQL查询语句（只能使用SELECT语句）
-                - 使用 sql_execute 工具执行SQL并返回结果
+                - 使用 query 工具执行SQL并返回结果
                 - 将查询结果以清晰、易读的方式展示给用户
                 
                 重要规则：
@@ -95,8 +95,11 @@ public class AgentConfiguration {
                 .saver(redisSaver)
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
-                        .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
-                        .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
+//                        .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
+//                        .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
+                        .approvalOn("describe_table", "请确认要查询的表名，确认后将获取该表的完整结构信息")
+                        .approvalOn("query", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
+                        .approvalOn("execute", "请确认要执行的SQL操作语句，确认后将执行操作并返回结果")
                         .build(), new LoggingHook())
                 .interceptors(new LogToolInterceptor(), new LogModelInterceptor())
                 .build();

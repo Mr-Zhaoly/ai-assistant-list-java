@@ -15,6 +15,7 @@
         <module>ai-common</module>
         <module>common-tools</module>
         <module>database-agent</module>
+        <module>business-agent</module>
     </modules>
 
     <properties>
