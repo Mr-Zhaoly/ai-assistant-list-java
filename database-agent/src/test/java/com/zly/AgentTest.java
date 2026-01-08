@@ -1,3 +1,4 @@
+package com.zly;
 
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
@@ -34,13 +35,15 @@ public class AgentTest {
                 new UserMessage("我想了解 Java 多线程"),
                 new UserMessage("特别是线程池的使用")
         );
-        AssistantMessage response = reactAgent.call(messages);
+        RunnableConfig config = RunnableConfig.builder().threadId("test-thread-1").build();
+        AssistantMessage response = reactAgent.call(messages, config);
         System.out.println(response.getText());
     }
 
     @Test
     public void testInvoke() throws GraphRunnerException {
-        Optional<OverAllState> result = reactAgent.invoke("帮我写一首诗");
+        RunnableConfig config = RunnableConfig.builder().threadId("test-thread-2").build();
+        Optional<OverAllState> result = reactAgent.invoke("帮我写一首诗", config);
         if (result.isPresent()) {
             OverAllState state = result.get();
 
@@ -67,4 +70,3 @@ public class AgentTest {
         System.out.println(response.getText());
     }
 }
-

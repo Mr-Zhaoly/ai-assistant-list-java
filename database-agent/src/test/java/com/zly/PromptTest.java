@@ -1,3 +1,5 @@
+package com.zly;
+
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.zly.DatabaseAgentApplication;
 import org.junit.jupiter.api.Test;

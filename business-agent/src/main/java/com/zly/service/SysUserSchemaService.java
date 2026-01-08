@@ -1,14 +1,20 @@
 package com.zly.service;
 
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONArray;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +23,9 @@ public class SysUserSchemaService {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired(required = false)
+    private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
 
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
@@ -71,6 +80,53 @@ public class SysUserSchemaService {
 
     @jakarta.annotation.PostConstruct
     public void init() {
+        // 1. Try MCP first
+        if (mcpToolCallbackProvider != null) {
+            try {
+                ToolCallback tool = Arrays.stream(mcpToolCallbackProvider.getToolCallbacks())
+                        .filter(t -> t.getToolDefinition().name().equals("describe_table"))
+                        .findFirst()
+                        .orElse(null);
+
+                if (tool != null) {
+                    // Call describe_table for sys_user
+                    String result = tool.call("{\"table_name\": \"sys_user\"}");
+                    
+                    // Try to parse as JSON
+                    if (JSONUtil.isTypeJSON(result)) {
+                        // If it's an array of columns
+                        if (JSONUtil.isJsonArray(result)) {
+                            JSONArray array = JSONUtil.parseArray(result);
+                            for (Object obj : array) {
+                                if (obj instanceof JSONObject) {
+                                    columns.add(((JSONObject) obj).getStr("Field")); // 'Field' is standard in SHOW COLUMNS
+                                } else if (obj instanceof String) {
+                                    columns.add((String) obj);
+                                }
+                            }
+                        } 
+                        // If it's an object containing 'columns' or similar
+                        else {
+                            JSONObject json = JSONUtil.parseObj(result);
+                            if (json.containsKey("columns")) {
+                                JSONArray array = json.getJSONArray("columns");
+                                for (Object obj : array) {
+                                    columns.add(obj.toString());
+                                }
+                            }
+                        }
+                    }
+                    // If parsing succeeded and we have columns, return
+                    if (!columns.isEmpty()) {
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                // MCP failure, ignore and fallback to JDBC
+            }
+        }
+
+        // 2. JDBC Fallback
         String db = parseDatabaseName(jdbcUrl);
         String sql = "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'sys_user'";
         try (Connection conn = dataSource.getConnection();
