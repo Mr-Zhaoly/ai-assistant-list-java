@@ -17,10 +17,14 @@ public class RedisSaverConfiguration {
     @Value("${redis.port}")
     private String port;
 
+    @Value("${redis.password}")
+    private String password;
+
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port);
+        config.useSingleServer().setAddress("redis://" + host + ":" + port)
+                .setPassword(password);
         return Redisson.create(config);
     }
 

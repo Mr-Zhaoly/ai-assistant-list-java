@@ -23,7 +23,7 @@ spring:
         host: ${redis.host}
         port: ${redis.port}
         timeout: 5000
-        password:
+        password: ${redis.password}
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
@@ -33,9 +33,9 @@ auth:
             
 # redis-config.yml
 redis:
-  host: localhost
-  password:
-  port: 6379
+  host: ${REDIS_HOST}
+  password: ${REDIS_PWD}
+  port: ${REDIS_PORT}
 
 logging:
   level:
