@@ -23,8 +23,9 @@ public class RedisSaverConfiguration {
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port)
-                .setPassword(password);
+        config.useSingleServer()
+              .setAddress("redis://" + host + ":" + port)
+              .setPassword(password);
         return Redisson.create(config);
     }
 

@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedisSaverConfiguration {
 
-    @Value("${redis.host}")
+    @Value("${REDIS_HOST}")
     private String host;
 
-    @Value("${redis.port}")
+    @Value("${REDIS_PORT}")
     private String port;
 
-    @Value("${redis.password}")
+    @Value("${REDIS_PWD}")
     private String password;
 
     @Bean
