@@ -49,9 +49,9 @@ milvus:
 
 # redis-config.yml
 redis:
-  host: localhost
-  password:
-  port: 6379
+  host: ${REDIS_HOST}
+  password: ${REDIS_PWD}
+  port: ${REDIS_PORT}
 
 logging:
   level:
