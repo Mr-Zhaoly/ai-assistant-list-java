@@ -11,16 +11,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedisSaverConfiguration {
 
-    @Value("${redis.host}")
+    @Value("${REDIS_HOST}")
     private String host;
 
-    @Value("${redis.port}")
+    @Value("${REDIS_PORT}")
     private String port;
+
+    @Value("${REDIS_PWD}")
+    private String password;
 
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port);
+        config.useSingleServer()
+              .setAddress("redis://" + host + ":" + port)
+              .setPassword(password);
         return Redisson.create(config);
     }
 
