@@ -17,10 +17,17 @@ public class RedisSaverConfiguration {
     @Value("${redis.port}")
     private String port;
 
+    @Value("${redis.password}")
+    private String password;
+
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port);
+        config.useSingleServer().setAddress("redis://" + host + ":" + port)
+                .setPassword(password)
+                .setConnectionMinimumIdleSize(5)
+                .setConnectTimeout(30000)
+                .setTimeout(10000);
         return Redisson.create(config);
     }
 

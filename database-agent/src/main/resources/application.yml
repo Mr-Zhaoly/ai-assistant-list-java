@@ -23,7 +23,7 @@ spring:
         host: ${redis.host}
         port: ${redis.port}
         timeout: 5000
-        password:
+        password: ${redis.password}
     mcp:
       client:
         request-timeout: 60000
