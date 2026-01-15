@@ -1,10 +1,9 @@
 server:
-  port: 8082
+  port: 8083
 spring:
   profiles:
     active: dev
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/datax?allowMultiQueries=true&characterEncoding=UTF-8&useUnicode=true&autoReconnect=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&rewriteBatchedstatements=true
     username: ${MYSQL_USER}
@@ -24,29 +23,13 @@ spring:
         port: ${redis.port}
         timeout: 5000
         password: ${redis.password}
-    mcp:
-      client:
-        request-timeout: 60000
-        stdio:
-          # 1. 单独放在一个json文件（推荐）
-#          servers-configuration: classpath:/mcp/mcp-servers-config.json
-          #2. 直接配置全局配置文件中
-          connections:
-            mysql:
-              command: cmd
-              args:
-                - /c
-                - npx
-                - -y
-                - '@fhuang/mcp-mysql-server'
-                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
-
-milvus:
-  client:
-    url: "http://localhost:19530"
-    userName: "root"
-    password: "milvus"
-
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+      
+auth:
+  token-ttl-hours: 2
+            
 # redis-config.yml
 redis:
   host: ${REDIS_HOST}
@@ -61,4 +44,16 @@ logging:
           chat:
             client:
               advisor: DEBUG
-
+  mcp:
+    client:
+      request-timeout: 60000
+      stdio:
+        connections:
+          mysql:
+            command: cmd
+            args:
+              - /c
+              - npx
+              - -y
+              - '@fhuang/mcp-mysql-server'
+              - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
