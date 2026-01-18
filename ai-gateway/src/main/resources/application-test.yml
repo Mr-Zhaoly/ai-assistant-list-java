@@ -42,7 +42,7 @@ redis:
 
 # nacos 账号密码
 nacos:
-  namespace: ${NACOS_NAMESPACE}
+  namespace: agent
   group: ${NACOS_GROUP}
   username: ${NACOS_USERNAME}
   password: ${NACOS_PASSWORD}

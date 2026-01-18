@@ -25,6 +25,8 @@
         <spring-ai.version>1.1.0-M4</spring-ai.version>
         <!-- Spring Boot -->
         <spring-boot.version>3.5.7</spring-boot.version>
+        <!-- Spring Cloud (for ai-gateway, compatible with Spring Boot 3.5.x) -->
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
 
         <!-- Spring AI Alibaba -->
         <!-- Install Spring AI Alibaba in your local. -->
@@ -74,6 +76,13 @@
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
                 <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
