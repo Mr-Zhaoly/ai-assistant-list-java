@@ -23,13 +23,19 @@ spring:
             - id: business-agent
               uri: lb://business-agent
               predicates:
-                - Path=/business/agent/**
+                - Path=/business-agent/**
               filters:
                 - StripPrefix=1
+            - id: business-agent-legacy
+              uri: lb://business-agent
+              predicates:
+                - Path=/business/agent/**
+              filters:
+                - StripPrefix=2
             - id: tool-agent
               uri: lb://tool-agent
               predicates:
-                - Path=/tool/agent/**
+                - Path=/tool-agent/**
               filters:
                 - StripPrefix=1
   data:

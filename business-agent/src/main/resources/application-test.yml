@@ -66,10 +66,8 @@ logging:
       stdio:
         connections:
           mysql:
-            command: cmd
+            command: npx
             args:
-              - /c
-              - npx
               - -y
               - '@fhuang/mcp-mysql-server'
               - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
