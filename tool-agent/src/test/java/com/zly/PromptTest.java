@@ -1,7 +1,6 @@
 package com.zly;
 
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
-import com.zly.DatabaseAgentApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
@@ -14,7 +13,7 @@ import org.springframework.core.io.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SpringBootTest(classes = DatabaseAgentApplication.class)
+@SpringBootTest(classes = ToolAgentApplication.class)
 public class PromptTest {
 
     @Test

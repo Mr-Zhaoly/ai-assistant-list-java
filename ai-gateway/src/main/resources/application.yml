@@ -25,10 +25,10 @@ spring:
               uri: lb://business-agent
               predicates:
                 - Path=/business/**
-            - id: database-agent
-              uri: lb://database-agent
+            - id: tool-agent
+              uri: lb://tool-agent
               predicates:
-                - Path=/database/**
+                - Path=/tool/**
   data:
     redis:
       host: ${redis.host}

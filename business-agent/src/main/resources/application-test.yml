@@ -1,6 +1,8 @@
 server:
   port: 8083
 spring:
+  application:
+    name: business-agent
   profiles:
     active: dev
   datasource:
@@ -26,15 +28,29 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
-      
+  cloud:
+    nacos:
+      discovery:
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+        server-addr: ${nacos.server-add}
+
 auth:
   token-ttl-hours: 2
             
-# redis-config.yml
 redis:
   host: ${REDIS_HOST}
   password: ${REDIS_PWD}
   port: ${REDIS_PORT}
+
+nacos:
+  namespace: agent
+  group: ${NACOS_GROUP}
+  username: ${NACOS_USERNAME}
+  password: ${NACOS_PASSWORD}
+  server-add: ${NACOS_SERVER_ADD}
 
 logging:
   level:

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class DatabaseAgentVO implements Serializable {
+public class ToolAgentVO implements Serializable {
 
     private Integer code;
 

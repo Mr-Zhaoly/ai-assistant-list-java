@@ -1,6 +1,8 @@
 server:
   port: 8082
 spring:
+  application:
+    name: tool-agent
   profiles:
     active: dev
   datasource:
@@ -28,16 +30,23 @@ spring:
       client:
         request-timeout: 60000
         stdio:
-          # 1. 单独放在一个json文件（推荐）
-#          servers-configuration: classpath:/mcp/mcp-servers-config.json
-          #2. 直接配置全局配置文件中
           connections:
             mysql:
-              command: npx
+              command: cmd
               args:
+                - /c
+                - npx
                 - -y
                 - '@fhuang/mcp-mysql-server'
                 - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
+  cloud:
+    nacos:
+      discovery:
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+        server-addr: ${nacos.server-add}
 
 milvus:
   client:
@@ -45,11 +54,17 @@ milvus:
     userName: "root"
     password: "milvus"
 
-# redis-config.yml
 redis:
   host: ${REDIS_HOST}
   password: ${REDIS_PWD}
   port: ${REDIS_PORT}
+
+nacos:
+  namespace: ${NACOS_NAMESPACE}
+  group: ${NACOS_GROUP}
+  username: ${NACOS_USERNAME}
+  password: ${NACOS_PASSWORD}
+  server-add: ${NACOS_SERVER_ADD}
 
 logging:
   level:

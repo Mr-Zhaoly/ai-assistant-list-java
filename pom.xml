@@ -14,7 +14,7 @@
 <!--        <module>milvus-manage</module>-->
         <module>ai-common</module>
         <module>common-tools</module>
-        <module>database-agent</module>
+        <module>tool-agent</module>
         <module>business-agent</module>
         <module>ai-gateway</module>
     </modules>

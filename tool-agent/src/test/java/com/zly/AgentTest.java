@@ -4,7 +4,6 @@ import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
-import com.zly.DatabaseAgentApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-@SpringBootTest(classes = DatabaseAgentApplication.class)
+@SpringBootTest(classes = ToolAgentApplication.class)
 @ActiveProfiles("test")
 public class AgentTest {
 

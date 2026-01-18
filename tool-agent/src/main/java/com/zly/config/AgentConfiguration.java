@@ -54,9 +54,9 @@ public class AgentConfiguration {
 //        toolCallbacks.add(tableStructureTool.toolCallback());
 //        toolCallbacks.add(sqlExecuteTool.toolCallback());
 
-        // 系统提示词：指导Agent按步骤执行数据库查询
+        // 系统提示词：指导Agent按步骤执行非业务基础能力
         String systemPrompt = """
-                你是一个专业的数据库查询助手，请严格按照以下步骤帮助用户查询数据库：
+                你是一个专业的工具助手，当前主要负责数据库相关查询能力，后续会逐步扩展更多工具Agent。
                 
                 步骤1：从用户输入中提取与数据库表名相关的关键字
                 - 分析用户的问题，识别出可能涉及的表名关键字（如"订单"、"用户"、"产品"等）
@@ -87,8 +87,8 @@ public class AgentConfiguration {
                 """;
 
         return ReactAgent.builder()
-                .name("database-agent")
-                .description("对接数据库的agent，按照步骤帮助用户查询数据库")
+                .name("tool-agent")
+                .description("工具Agent集合，当前聚焦数据库查询场景")
                 .model(chatModel)
 //                .outputType(PoemOutput.class)
                 .systemPrompt(systemPrompt)

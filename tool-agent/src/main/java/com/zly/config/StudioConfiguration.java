@@ -19,14 +19,12 @@ public class StudioConfiguration {
         return new AgentLoader() {
             @Override
             public Agent loadAgent(String agentId) {
-                // Returns the reactAgent for the database-agent
                 return reactAgent;
             }
             
             @Override
             public List<String> listAgents() {
-                // Return a list containing our database agent ID
-                return List.of("database-agent");
+                return List.of("tool-agent");
             }
         };
     }

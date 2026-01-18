@@ -9,7 +9,7 @@ import com.alibaba.cloud.ai.graph.streaming.StreamingOutput;
 import com.alibaba.fastjson2.JSON;
 import com.zly.model.dto.QuestionRequestDTO;
 import com.zly.model.enums.AgentCodeEnum;
-import com.zly.model.vo.DatabaseAgentVO;
+import com.zly.model.vo.ToolAgentVO;
 import com.zly.service.IDatabaseQaService;
 import com.zly.utils.InterruptionMetadataUtil;
 import lombok.Data;
@@ -61,7 +61,7 @@ public class DataBaseController {
                     String node = output.node();
                     if (output instanceof StreamingOutput streamingOutput) {
                         if (streamingOutput.getOutputType() == OutputType.AGENT_MODEL_STREAMING) {
-                            DatabaseAgentVO agentVO = DatabaseAgentVO.builder()
+                            ToolAgentVO agentVO = ToolAgentVO.builder()
                                     .code(AgentCodeEnum.SUCCESS.getCode())
                                     .node(node)
                                     .chunk(streamingOutput.message().getText())
@@ -70,7 +70,7 @@ public class DataBaseController {
                         }
                     } else if (output instanceof InterruptionMetadata metadata) {
                         interruptionStore.put(threadId, metadata);
-                        DatabaseAgentVO agentVO = DatabaseAgentVO.builder()
+                        ToolAgentVO agentVO = ToolAgentVO.builder()
                                 .code(AgentCodeEnum.SUCCESS.getCode())
                                 .node(node)
                                 .chunk("")
@@ -97,12 +97,14 @@ public class DataBaseController {
 
         if (request.getFeedbacks() != null) {
             for (int i = 0; i < request.getFeedbacks().size(); i++) {
-                if (i >= metadata.toolFeedbacks().size()) break;
+                if (i >= metadata.toolFeedbacks().size()) {
+                    break;
+                }
                 var toolFeedback = metadata.toolFeedbacks().get(i);
                 var userFeedback = request.getFeedbacks().get(i);
 
-                InterruptionMetadata.ToolFeedback.Builder editedFeedbackBuilder = InterruptionMetadata.ToolFeedback
-                        .builder(toolFeedback);
+                InterruptionMetadata.ToolFeedback.Builder editedFeedbackBuilder =
+                        InterruptionMetadata.ToolFeedback.builder(toolFeedback);
 
                 if (userFeedback.isApproved()) {
                     editedFeedbackBuilder.result(InterruptionMetadata.ToolFeedback.FeedbackResult.APPROVED);
@@ -110,6 +112,7 @@ public class DataBaseController {
                     editedFeedbackBuilder.result(InterruptionMetadata.ToolFeedback.FeedbackResult.REJECTED)
                             .description(userFeedback.getFeedback());
                 }
+
                 newBuilder.addToolFeedback(editedFeedbackBuilder.build());
             }
         }
@@ -119,16 +122,14 @@ public class DataBaseController {
                 .addMetadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY, newBuilder.build())
                 .build();
 
-        // 清除旧的 interruption
         interruptionStore.remove(threadId);
 
-        // Resume execution
         return reactAgent.stream("", resumeRunnableConfig)
                 .map(output -> {
                     String node = output.node();
                     if (output instanceof StreamingOutput streamingOutput) {
                         if (streamingOutput.getOutputType() == OutputType.AGENT_MODEL_STREAMING) {
-                            DatabaseAgentVO agentVO = DatabaseAgentVO.builder()
+                            ToolAgentVO agentVO = ToolAgentVO.builder()
                                     .code(AgentCodeEnum.SUCCESS.getCode())
                                     .node(node)
                                     .chunk(streamingOutput.message().getText())
@@ -137,7 +138,7 @@ public class DataBaseController {
                         }
                     } else if (output instanceof InterruptionMetadata newMetadata) {
                         interruptionStore.put(threadId, newMetadata);
-                        DatabaseAgentVO agentVO = DatabaseAgentVO.builder()
+                        ToolAgentVO agentVO = ToolAgentVO.builder()
                                 .code(AgentCodeEnum.SUCCESS.getCode())
                                 .node(node)
                                 .chunk("")
@@ -145,7 +146,7 @@ public class DataBaseController {
                                 .build();
                         return JSON.toJSONString(agentVO);
                     }
-                    return "";
+                    return "{}";
                 })
                 .filter(s -> !s.isEmpty());
     }
