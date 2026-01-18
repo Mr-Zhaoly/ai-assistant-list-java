@@ -30,8 +30,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
         
-        // 1. 白名单路径直接放行
-        if (EXCLUDE_PATHS.stream().anyMatch(path::startsWith)) {
+        // 1. 白名单路径直接放行（支持前面有代理前缀的情况，比如 /api/business-agent/...）
+        if (EXCLUDE_PATHS.stream().anyMatch(path::endsWith)) {
             return chain.filter(exchange);
         }
 

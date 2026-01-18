@@ -18,17 +18,20 @@ spring:
         webflux:
           discovery:
             locator:
-              enabled: true
-              lower-case-service-id: true
+              enabled: false
           routes:
             - id: business-agent
               uri: lb://business-agent
               predicates:
-                - Path=/business/**
+                - Path=/business/agent/**
+              filters:
+                - StripPrefix=1
             - id: tool-agent
               uri: lb://tool-agent
               predicates:
-                - Path=/tool/**
+                - Path=/tool/agent/**
+              filters:
+                - StripPrefix=1
   data:
     redis:
       host: ${redis.host}
