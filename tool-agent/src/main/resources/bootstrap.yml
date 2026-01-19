@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: tool-agent
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: ${nacos.server-add}
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+      discovery:
+        server-addr: ${nacos.server-add}
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+
+# nacos 账号密码
+nacos:
+  namespace: ${NACOS_NAMESPACE}
+  group: ${NACOS_GROUP}
+  username: ${NACOS_USERNAME}
+  password: ${NACOS_PASSWORD}
+  server-add: ${NACOS_SERVER_ADD}

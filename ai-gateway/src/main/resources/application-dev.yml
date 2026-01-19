@@ -39,13 +39,6 @@ redis:
   password: ${REDIS_PWD}
   port: ${REDIS_PORT}
 
-nacos:
-  namespace: agent
-  group: ${NACOS_GROUP}
-  username: ${NACOS_USERNAME}
-  password: ${NACOS_PASSWORD}
-  server-add: ${NACOS_SERVER_ADD}
-
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
