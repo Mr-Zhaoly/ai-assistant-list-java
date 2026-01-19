@@ -1,16 +1,37 @@
+server:
+  port: 8080
 spring:
   application:
     name: ai-gateway
   profiles:
     active: dev
   cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: business-agent
+              uri: lb://business-agent
+              predicates:
+                - Path=/business-agent/**
+              filters:
+                - StripPrefix=1
+            - id: business-agent-legacy
+              uri: lb://business-agent
+              predicates:
+                - Path=/business/agent/**
+              filters:
+                - StripPrefix=2
+            - id: tool-agent
+              uri: lb://tool-agent
+              predicates:
+                - Path=/tool-agent/**
+              filters:
+                - StripPrefix=1
     nacos:
-      config:
-        server-addr: ${nacos.server-add}
-        namespace: ${nacos.namespace}
-        group: ${nacos.group}
-        username: ${nacos.username}
-        password: ${nacos.password}
       discovery:
         server-addr: ${nacos.server-add}
         namespace: ${nacos.namespace}
