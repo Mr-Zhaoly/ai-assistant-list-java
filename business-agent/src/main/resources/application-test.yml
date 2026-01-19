@@ -3,8 +3,6 @@ server:
 spring:
   application:
     name: business-agent
-  profiles:
-    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/datax?allowMultiQueries=true&characterEncoding=UTF-8&useUnicode=true&autoReconnect=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&rewriteBatchedstatements=true

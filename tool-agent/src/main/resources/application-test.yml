@@ -3,8 +3,6 @@ server:
 spring:
   application:
     name: tool-agent
-  profiles:
-    active: dev
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -26,17 +24,6 @@ spring:
         port: ${redis.port}
         timeout: 5000
         password: ${redis.password}
-    mcp:
-      client:
-        request-timeout: 60000
-        stdio:
-          connections:
-            mysql:
-              command: npx
-              args:
-                - -y
-                - '@fhuang/mcp-mysql-server'
-                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
   cloud:
     nacos:
       discovery:
