@@ -19,17 +19,25 @@ spring:
         port: ${redis.port}
         timeout: 5000
         password: ${redis.password}
+    mcp:
+      client:
+        request-timeout: 60000
+        stdio:
+          connections:
+            mysql:
+              command: cmd
+              args:
+                - /c
+                - npx
+                - -y
+                - '@fhuang/mcp-mysql-server'
+                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
 
 auth:
   token-ttl-hours: 2
-            
-redis:
-  host: ${REDIS_HOST}
-  password: ${REDIS_PWD}
-  port: ${REDIS_PORT}
 
 logging:
   level:
@@ -39,16 +47,3 @@ logging:
           chat:
             client:
               advisor: DEBUG
-  mcp:
-    client:
-      request-timeout: 60000
-      stdio:
-        connections:
-          mysql:
-            command: cmd
-            args:
-              - /c
-              - npx
-              - -y
-              - '@fhuang/mcp-mysql-server'
-              - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax

@@ -1,3 +1,5 @@
+server:
+  port: 8083
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,17 +21,20 @@ spring:
         port: ${redis.port}
         timeout: 5000
         password: ${redis.password}
+    mcp:
+      client:
+        request-timeout: 60000
+        stdio:
+          connections:
+            mysql:
+              command: npx
+              args:
+                - -y
+                - '@fhuang/mcp-mysql-server'
+                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
-  cloud:
-    nacos:
-      discovery:
-        namespace: ${nacos.namespace}
-        group: ${nacos.group}
-        username: ${nacos.username}
-        password: ${nacos.password}
-        server-addr: ${nacos.server-add}
 
 auth:
   token-ttl-hours: 2
@@ -39,13 +44,6 @@ redis:
   password: ${REDIS_PWD}
   port: ${REDIS_PORT}
 
-nacos:
-  namespace: agent
-  group: ${NACOS_GROUP}
-  username: ${NACOS_USERNAME}
-  password: ${NACOS_PASSWORD}
-  server-add: ${NACOS_SERVER_ADD}
-
 logging:
   level:
     org:
@@ -54,14 +52,3 @@ logging:
           chat:
             client:
               advisor: DEBUG
-  mcp:
-    client:
-      request-timeout: 60000
-      stdio:
-        connections:
-          mysql:
-            command: npx
-            args:
-              - -y
-              - '@fhuang/mcp-mysql-server'
-              - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
