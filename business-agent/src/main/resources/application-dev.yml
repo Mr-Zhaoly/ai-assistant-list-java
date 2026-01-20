@@ -1,3 +1,6 @@
+server:
+  port: 8083
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -38,6 +41,11 @@ spring:
 
 auth:
   token-ttl-hours: 2
+
+redis:
+  host: ${REDIS_HOST}
+  password: ${REDIS_PWD}
+  port: ${REDIS_PORT}
 
 logging:
   level:

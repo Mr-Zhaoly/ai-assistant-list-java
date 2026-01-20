@@ -1,5 +1,3 @@
-server:
-  port: 8083
 spring:
   application:
     name: business-agent
@@ -7,6 +5,12 @@ spring:
     active: dev
   cloud:
     nacos:
+      config:
+        server-addr: ${nacos.server-add}
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
       discovery:
         server-addr: ${nacos.server-add}
         namespace: ${nacos.namespace}

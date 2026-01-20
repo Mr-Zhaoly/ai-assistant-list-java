@@ -1,5 +1,6 @@
 server:
   port: 8082
+
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -44,6 +45,13 @@ redis:
   host: ${REDIS_HOST}
   password: ${REDIS_PWD}
   port: ${REDIS_PORT}
+
+nacos:
+  namespace: agent
+  group: ${NACOS_GROUP}
+  username: ${NACOS_USERNAME}
+  password: ${NACOS_PASSWORD}
+  server-add: ${NACOS_SERVER_ADD}
 
 logging:
   level:
