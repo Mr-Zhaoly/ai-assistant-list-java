@@ -16,7 +16,7 @@ import java.util.List;
 
 @Configuration
 public class AgentConfiguration {
-    @Autowired
+    @Autowired(required = false)
     private ChatModel chatModel;
 
     @Autowired
