@@ -22,13 +22,9 @@ public class AgentConfiguration {
     @Autowired
     private RedisSaver redisSaver;
 
-    @Autowired
-    private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
-
     @Bean
     public ReactAgent reactAgent() throws GraphStateException {
         List<ToolCallback> toolCallbacks = new ArrayList<>();
-        java.util.Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
 
         String systemPrompt = """
                 你是一个专业的业务助手，负责处理通用的业务请求。
