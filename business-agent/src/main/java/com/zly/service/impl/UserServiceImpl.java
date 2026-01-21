@@ -1,27 +1,29 @@
-package com.zly.service;
+package com.zly.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zly.mapper.SysUserMapper;
 import com.zly.model.entity.SysUser;
-import com.zly.repository.SysUserRepository;
-import org.redisson.api.RedissonClient;
+import com.zly.service.IUserService;
 import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
-public class UserService {
-
-    @Autowired
-    private SysUserRepository repository;
+public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements IUserService {
 
     @Autowired
     private RedissonClient redissonClient;
@@ -32,19 +34,22 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Random random = new SecureRandom();
 
+    @Override
     public String generateCaptcha(String account) {
         String code = randomCode(4);
         RBucket<String> bucket = redissonClient.getBucket(captchaKey(account));
-        bucket.set(code, 5, java.util.concurrent.TimeUnit.MINUTES); // 5分钟有效期
+        bucket.set(code, 5, TimeUnit.MINUTES); // 5分钟有效期
         return code;
     }
 
+    @Override
     public boolean verifyCaptcha(String account, String code) {
         RBucket<String> bucket = redissonClient.getBucket(captchaKey(account));
         String saved = bucket.get();
         return saved != null && saved.equalsIgnoreCase(code);
     }
 
+    @Override
     public long register(String username, String email, String rawPassword) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("用户名必填");
@@ -52,73 +57,125 @@ public class UserService {
         if (rawPassword == null || rawPassword.length() < 6) {
             throw new IllegalArgumentException("密码至少6位");
         }
-        if (repository.existsByUsername(username)) {
+        
+        boolean existsUsername = lambdaQuery().eq(SysUser::getUsername, username).exists();
+        if (existsUsername) {
             throw new IllegalArgumentException("用户名已存在");
         }
-        if (email != null && !email.isBlank() && repository.existsByEmail(email)) {
-            throw new IllegalArgumentException("邮箱已存在");
+        
+        if (email != null && !email.isBlank()) {
+            boolean existsEmail = lambdaQuery().eq(SysUser::getEmail, email).exists();
+            if (existsEmail) {
+                throw new IllegalArgumentException("邮箱已存在");
+            }
         }
+        
         String hash = passwordEncoder.encode(rawPassword);
         SysUser user = SysUser.builder()
+                .userNo("U" + System.currentTimeMillis())
                 .username(username)
                 .email(email)
-                .passwordHash(hash)
-                .status("ACTIVE")
-                .deleted(0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .password(hash)
+                .status(1)
+                .gender(0)
                 .build();
-        return repository.insert(user);
+        user.setIsDelete(0);
+        user.setCreatedTime(LocalDateTime.now());
+        user.setUpdatedTime(LocalDateTime.now());
+        
+        save(user);
+        return user.getId();
     }
 
+    @Override
     public String login(String account, String rawPassword, String captcha) {
-        Optional<SysUser> opt = repository.findByUsernameOrEmail(account);
-        if (opt.isEmpty()) {
+        SysUser user = lambdaQuery()
+                .and(w -> w.eq(SysUser::getUsername, account).or().eq(SysUser::getEmail, account))
+                .one();
+                
+        if (user == null) {
             throw new IllegalArgumentException("用户不存在");
         }
-        SysUser user = opt.get();
-        if (user.getDeleted() != null && user.getDeleted() == 1) {
+        
+        if (user.getIsDelete() != null && user.getIsDelete() == 1) {
             throw new IllegalStateException("用户已注销");
         }
-        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+        if (user.getStatus() != null && user.getStatus() == 0) {
             throw new IllegalStateException("用户已被禁用");
         }
         if (!verifyCaptcha(account, captcha)) {
             throw new IllegalArgumentException("验证码不正确或已过期");
         }
-        if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new IllegalArgumentException("密码不正确");
         }
         String token = createToken();
         RBucket<Long> bucket = redissonClient.getBucket(tokenKey(token));
-        bucket.set(user.getId(), tokenTtlHours, java.util.concurrent.TimeUnit.HOURS);
+        bucket.set(user.getId(), tokenTtlHours, TimeUnit.HOURS);
+        
+        // 更新最后登录时间
+        user.setLastLoginTime(LocalDateTime.now());
+        updateById(user);
+        
         return token;
     }
 
+    @Override
     public void resetPassword(String account) {
         String newHash = passwordEncoder.encode("abc~123456");
-        int updated = repository.updatePassword(account, newHash);
-        if (updated == 0) {
+        boolean updated = lambdaUpdate()
+                .set(SysUser::getPassword, newHash)
+                .set(SysUser::getUpdatedTime, LocalDateTime.now())
+                .and(w -> w.eq(SysUser::getUsername, account).or().eq(SysUser::getEmail, account))
+                .update();
+                
+        if (!updated) {
             throw new IllegalArgumentException("用户不存在");
         }
     }
 
+    @Override
     public void disable(String account) {
-        int updated = repository.disableUser(account);
-        if (updated == 0) {
+        boolean updated = lambdaUpdate()
+                .set(SysUser::getStatus, 0)
+                .set(SysUser::getUpdatedTime, LocalDateTime.now())
+                .and(w -> w.eq(SysUser::getUsername, account).or().eq(SysUser::getEmail, account))
+                .update();
+                
+        if (!updated) {
             throw new IllegalArgumentException("用户不存在");
         }
     }
 
+    @Override
     public void logicalDelete(String account) {
-        int updated = repository.logicalDelete(account);
-        if (updated == 0) {
+        boolean updated = lambdaUpdate()
+                .set(SysUser::getIsDelete, 1)
+                .set(SysUser::getUpdatedTime, LocalDateTime.now())
+                .and(w -> w.eq(SysUser::getUsername, account).or().eq(SysUser::getEmail, account))
+                .update();
+                
+        if (!updated) {
             throw new IllegalArgumentException("用户不存在");
         }
     }
 
+    @Override
     public List<SysUser> list(String name, String email, int page, int size) {
-        return repository.pageQuery(name, email, page, size);
+        Page<SysUser> p = new Page<>(page, size);
+        LambdaQueryWrapper<SysUser> query = new LambdaQueryWrapper<>();
+        query.eq(SysUser::getIsDelete, 0);
+        
+        if (StringUtils.hasText(name)) {
+            query.like(SysUser::getUsername, name);
+        }
+        if (StringUtils.hasText(email)) {
+            query.like(SysUser::getEmail, email);
+        }
+        query.orderByDesc(SysUser::getId);
+        
+        Page<SysUser> result = page(p, query);
+        return result.getRecords();
     }
 
     private String captchaKey(String account) {

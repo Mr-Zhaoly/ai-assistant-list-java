@@ -6,7 +6,7 @@ import com.zly.model.entity.SysUser;
 import com.zly.model.vo.CaptchaVO;
 import com.zly.model.vo.LoginTokenVO;
 import com.zly.model.vo.SysUserVO;
-import com.zly.service.UserService;
+import com.zly.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @PostMapping("/captcha")
     public ResultT<CaptchaVO> captcha(@RequestBody Map<String, String> body) {
@@ -32,19 +32,15 @@ public class UserController {
 
     @PostMapping("/register")
     public ResultT<SysUserVO> register(@RequestBody UserRegisterDTO request) {
-        try {
-            long id = userService.register(request.getUsername(), request.getEmail(), request.getPassword());
-            SysUserVO vo = SysUserVO.builder()
-                    .id(id)
-                    .username(request.getUsername())
-                    .email(request.getEmail())
-                    .status("ACTIVE")
-                    .deleted(0)
-                    .build();
-            return ResultT.success(vo);
-        } catch (Exception e) {
-            return ResultT.error(e.getMessage());
-        }
+        long id = userService.register(request.getUsername(), request.getEmail(), request.getPassword());
+        SysUserVO vo = SysUserVO.builder()
+                .id(id)
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .status("ACTIVE")
+                .deleted(0)
+                .build();
+        return ResultT.success(vo);
     }
 
     @PostMapping("/login")
@@ -97,10 +93,10 @@ public class UserController {
                     .id(u.getId())
                     .username(u.getUsername())
                     .email(u.getEmail())
-                    .status(u.getStatus())
-                    .deleted(u.getDeleted())
-                    .createdAt(u.getCreatedAt())
-                    .updatedAt(u.getUpdatedAt())
+                    .status(u.getStatus() == 1 ? "ACTIVE" : "DISABLED")
+                    .deleted(u.getIsDelete())
+                    .createdAt(u.getCreatedTime())
+                    .updatedAt(u.getUpdatedTime())
                     .build()).toList();
             return ResultT.success(vos);
         } catch (Exception e) {
