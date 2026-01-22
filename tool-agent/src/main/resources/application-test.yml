@@ -23,17 +23,17 @@ spring:
         port: ${redis.port}
         timeout: 5000
         password: ${redis.password}
-    mcp:
-      client:
-        request-timeout: 60000
-        stdio:
-          connections:
-            mysql:
-              command: npx
-              args:
-                - -y
-                - '@fhuang/mcp-mysql-server'
-                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
+#    mcp:
+#      client:
+#        request-timeout: 60000
+#        stdio:
+#          connections:
+#            mysql:
+#              command: npx
+#              args:
+#                - -y
+#                - '@fhuang/mcp-mysql-server'
+#                - mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:${MYSQL_PORT}/datax
 
 milvus:
   client:

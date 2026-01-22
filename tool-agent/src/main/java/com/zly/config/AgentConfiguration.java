@@ -31,8 +31,8 @@ public class AgentConfiguration {
     @Autowired
     private RedisSaver redisSaver;
 
-    @Autowired
-    private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
+//    @Autowired
+//    private SyncMcpToolCallbackProvider mcpToolCallbackProvider;
 
     @Autowired
     private TableSearchTool tableSearchTool;
@@ -47,12 +47,12 @@ public class AgentConfiguration {
     public ReactAgent reactAgent() throws GraphStateException {
         // 组合 MCP 工具与本地文件工具
         List<ToolCallback> toolCallbacks = new ArrayList<>();
-        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
+//        Collections.addAll(toolCallbacks, mcpToolCallbackProvider.getToolCallbacks());
         
         // 注册数据库查询工具
-//        toolCallbacks.add(tableSearchTool.toolCallback());
-//        toolCallbacks.add(tableStructureTool.toolCallback());
-//        toolCallbacks.add(sqlExecuteTool.toolCallback());
+        toolCallbacks.add(tableSearchTool.toolCallback());
+        toolCallbacks.add(tableStructureTool.toolCallback());
+        toolCallbacks.add(sqlExecuteTool.toolCallback());
 
         // 系统提示词：指导Agent按步骤执行非业务基础能力
         String systemPrompt = """
@@ -95,11 +95,11 @@ public class AgentConfiguration {
                 .saver(redisSaver)
                 .tools(toolCallbacks.toArray(new ToolCallback[0]))
                 .hooks(HumanInTheLoopHook.builder()
-//                        .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
-//                        .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
-                        .approvalOn("describe_table", "请确认要查询的表名，确认后将获取该表的完整结构信息")
-                        .approvalOn("query", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
-                        .approvalOn("execute", "请确认要执行的SQL操作语句，确认后将执行操作并返回结果")
+                        .approvalOn("table_structure", "请确认要查询的表名，确认后将获取该表的完整结构信息")
+                        .approvalOn("sql_execute", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
+//                        .approvalOn("describe_table", "请确认要查询的表名，确认后将获取该表的完整结构信息")
+//                        .approvalOn("query", "请确认要执行的SQL查询语句，确认后将执行查询并返回结果")
+//                        .approvalOn("execute", "请确认要执行的SQL操作语句，确认后将执行操作并返回结果")
                         .build(), new LoggingHook())
                 .interceptors(new LogToolInterceptor(), new LogModelInterceptor())
                 .build();
