@@ -23,7 +23,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
             "/business/user/login",
             "/business/user/register",
             "/business/user/captcha",
-            "/business/user/reset-password"
+            "/business/user/reset-password",
+            "/database/stop"
     );
 
     @Override

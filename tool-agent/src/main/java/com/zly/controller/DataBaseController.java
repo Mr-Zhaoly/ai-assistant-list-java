@@ -62,7 +62,7 @@ public class DataBaseController {
                 .build();
 
         return reactAgent.stream(request.getQuestion(), config)
-                .takeUntil(output -> Boolean.TRUE.equals(stopSignals.get(threadId)))
+                .filter(output -> !Boolean.TRUE.equals(stopSignals.get(threadId)))
                 .map(output -> {
                     String node = output.node();
                     if (output instanceof StreamingOutput streamingOutput) {
@@ -86,7 +86,7 @@ public class DataBaseController {
                     }
                     return "{}";
                 })
-                .filter(s -> !s.isEmpty())
+                .filter(s -> !s.isEmpty() && !"{}".equals(s))
                 .doFinally(signalType -> stopSignals.remove(threadId));
     }
 
