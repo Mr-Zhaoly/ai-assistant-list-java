@@ -36,6 +36,8 @@ public class DataBaseController {
 
     private final Map<String, InterruptionMetadata> interruptionStore = new ConcurrentHashMap<>();
 
+    private final Map<String, Boolean> stopSignals = new ConcurrentHashMap<>();
+
     @PostMapping(value = "/stream")
     public Flux<String> stream(@RequestBody QuestionRequestDTO request) throws GraphRunnerException {
         // 流式输出
@@ -50,6 +52,9 @@ public class DataBaseController {
     public Flux<String> chat(@RequestBody QuestionRequestDTO request) throws GraphRunnerException {
         // 根据用户ID和会话ID生成唯一的threadId，实现数据隔离
         String threadId = request.getUserId() + "_" + request.getSessionId();
+        
+        // 开启新会话前，确保清除旧的停止信号
+        stopSignals.remove(threadId);
 
         // 传入threadId以支持记忆功能和人工介入(HITL)
         RunnableConfig config = RunnableConfig.builder()
@@ -57,6 +62,7 @@ public class DataBaseController {
                 .build();
 
         return reactAgent.stream(request.getQuestion(), config)
+                .takeUntil(output -> Boolean.TRUE.equals(stopSignals.get(threadId)))
                 .map(output -> {
                     String node = output.node();
                     if (output instanceof StreamingOutput streamingOutput) {
@@ -80,28 +86,27 @@ public class DataBaseController {
                     }
                     return "{}";
                 })
-                .filter(s -> !s.isEmpty());
+                .filter(s -> !s.isEmpty())
+                .doFinally(signalType -> stopSignals.remove(threadId));
     }
 
     @PostMapping("/stop")
     public String stop(@RequestBody Map<String, String> request) {
-        String userId = request.get( "userId");
+        String userId = request.get("userId");
         String sessionId = request.get("sessionId");
         String threadId = userId + "_" + sessionId;
-        
-        // 尝试从 interruptionStore 中移除，这会打断等待人工介入的流程
+
+        // 1. 设置停止信号，打断正在进行的 Flux 流
+        stopSignals.put(threadId, true);
+
+        // 2. 尝试从 interruptionStore 中移除，打断等待人工介入的流程
         InterruptionMetadata removed = interruptionStore.remove(threadId);
-        
-        // 如果是正在进行的流式输出，通常需要通过控制 Flux 的订阅或者在 Agent 内部支持打断
-        // 在 spring-ai-alibaba-agent-framework 中，如果 ReactAgent 没有直接的 stop 方法，
-        // 我们可以通过 threadId 关联的状态来尝试干预。
-        // 这里先实现逻辑上的清理，并返回状态。
-        
+
         if (removed != null) {
-            return JSON.toJSONString(Map.of("code", 200, "message", "Successfully interrupted the session (HITL)."));
+            return JSON.toJSONString(Map.of("code", 200, "message", "Successfully interrupted the session (HITL and Streaming)."));
         }
-        
-        return JSON.toJSONString(Map.of("code", 200, "message", "Stop signal received for session: " + threadId));
+
+        return JSON.toJSONString(Map.of("code", 200, "message", "Stop signal sent for session: " + threadId));
     }
 
     @PostMapping("/feedback")
