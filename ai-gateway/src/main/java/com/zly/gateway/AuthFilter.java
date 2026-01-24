@@ -23,15 +23,16 @@ public class AuthFilter implements GlobalFilter, Ordered {
             "/business/user/login",
             "/business/user/register",
             "/business/user/captcha",
-            "/business/user/reset-password"
+            "/business/user/reset-password",
+            "/database/stop"
     );
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
         
-        // 1. 白名单路径直接放行（支持前面有代理前缀的情况，比如 /api/business-agent/...）
-        if (EXCLUDE_PATHS.stream().anyMatch(path::endsWith)) {
+        // 1. 白名单路径直接放行
+        if (EXCLUDE_PATHS.stream().anyMatch(exclude -> path.endsWith(exclude) || path.contains(exclude))) {
             return chain.filter(exchange);
         }
 
