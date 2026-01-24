@@ -9,6 +9,7 @@ import com.zly.model.entity.SysUser;
 import com.zly.service.IUserService;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -110,8 +111,8 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
             throw new IllegalArgumentException("密码不正确");
         }
         String token = createToken();
-        RBucket<Long> bucket = redissonClient.getBucket(tokenKey(token));
-        bucket.set(user.getId(), tokenTtlHours, TimeUnit.HOURS);
+        RBucket<String> bucket = redissonClient.getBucket(tokenKey(token), StringCodec.INSTANCE);
+        bucket.set(String.valueOf(user.getId()), tokenTtlHours, TimeUnit.HOURS);
         
         // 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
