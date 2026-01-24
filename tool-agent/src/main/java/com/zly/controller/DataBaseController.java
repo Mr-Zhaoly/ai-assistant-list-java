@@ -83,6 +83,27 @@ public class DataBaseController {
                 .filter(s -> !s.isEmpty());
     }
 
+    @PostMapping("/stop")
+    public String stop(@RequestBody Map<String, String> request) {
+        String userId = request.get( "userId");
+        String sessionId = request.get("sessionId");
+        String threadId = userId + "_" + sessionId;
+        
+        // 尝试从 interruptionStore 中移除，这会打断等待人工介入的流程
+        InterruptionMetadata removed = interruptionStore.remove(threadId);
+        
+        // 如果是正在进行的流式输出，通常需要通过控制 Flux 的订阅或者在 Agent 内部支持打断
+        // 在 spring-ai-alibaba-agent-framework 中，如果 ReactAgent 没有直接的 stop 方法，
+        // 我们可以通过 threadId 关联的状态来尝试干预。
+        // 这里先实现逻辑上的清理，并返回状态。
+        
+        if (removed != null) {
+            return JSON.toJSONString(Map.of("code", 200, "message", "Successfully interrupted the session (HITL)."));
+        }
+        
+        return JSON.toJSONString(Map.of("code", 200, "message", "Stop signal received for session: " + threadId));
+    }
+
     @PostMapping("/feedback")
     public Flux<String> feedback(@RequestBody FeedbackRequest request) throws GraphRunnerException {
         String threadId = request.getUserId() + "_" + request.getSessionId();
