@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/database")
-@org.springframework.web.bind.annotation.CrossOrigin
 public class DataBaseController {
 
     @Autowired
