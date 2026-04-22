@@ -22,7 +22,7 @@
     <properties>
         <java.version>17</java.version>
         <!-- Spring AI -->
-        <spring-ai.version>1.1.0-M4</spring-ai.version>
+        <spring-ai.version>1.1.2</spring-ai.version>
         <!-- Spring Boot -->
         <spring-boot.version>3.5.7</spring-boot.version>
         <!-- Spring Cloud (for ai-gateway, compatible with Spring Boot 3.5.x) -->
@@ -30,8 +30,8 @@
 
         <!-- Spring AI Alibaba -->
         <!-- Install Spring AI Alibaba in your local. -->
-        <spring-ai-alibaba.version>1.1.0.0-RC2</spring-ai-alibaba.version>
-        <spring-ai-alibaba.extensions.version>1.1.0.0-RC2</spring-ai-alibaba.extensions.version>
+        <spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
+        <spring-ai-alibaba.extensions.version>1.1.2.1</spring-ai-alibaba.extensions.version>
 <!--        <dashscope-sdk-java.version>2.15.1</dashscope-sdk-java.version>-->
         <jedis.version>5.2.0</jedis.version>
         <knife4j.version>3.0.3</knife4j.version>
