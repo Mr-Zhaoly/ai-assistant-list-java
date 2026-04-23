@@ -17,6 +17,7 @@
         <module>tool-agent</module>
         <module>business-agent</module>
         <module>ai-gateway</module>
+        <module>lucas-agent</module>
     </modules>
 
     <properties>

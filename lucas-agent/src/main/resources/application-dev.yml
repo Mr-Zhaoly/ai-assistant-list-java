@@ -1,0 +1,65 @@
+server:
+  port: 8085
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/ai-agent?allowMultiQueries=true&characterEncoding=UTF-8&useUnicode=true&autoReconnect=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&rewriteBatchedstatements=true
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+      chat:
+        options:
+          # 域分类等轻量任务使用 qwen-turbo，降低 Token 消耗
+          model: qwen-turbo
+      embedding:
+        options:
+          model: text-embedding-v3
+
+    # Spring AI MCP 客户端配置（对接 tool-agent 提供的 MCP 工具服务）
+    mcp:
+      client:
+        enabled: true
+        sse:
+          connections:
+            tool-agent:
+              url: http://localhost:8082
+
+    # Redis 对话记忆配置
+    memory:
+      redis:
+        host: ${redis.host}
+        port: ${redis.port}
+        timeout: 5000
+        password: ${redis.password}
+
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+
+# Redis 连接配置
+redis:
+  host: ${REDIS_HOST}
+  password: ${REDIS_PWD}
+  port: ${REDIS_PORT}
+
+# Lucas 机器人业务配置
+lucas:
+  # 情绪识别使用的轻量模型（降低延迟）
+  emotion-model: qwen-turbo
+  # 域分类使用的轻量模型
+  domain-classifier-model: qwen-turbo
+  # 各域处理使用的主力模型
+  main-model: deepseek-v3
+  # 转人工触发情绪阈值
+  human-handoff-emotions:
+    - angry
+    - human
+
+logging:
+  level:
+    com.zly.lucas: DEBUG
+    org.springframework.ai.chat.client.advisor: DEBUG
